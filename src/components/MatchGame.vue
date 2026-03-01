@@ -46,32 +46,101 @@ const round = ref(1)
 const roundWords = ref<Word[]>([])
 
 /* =========================
-   SP判定 & Speech unlock
+   SP判定
    ========================= */
 const isMobile = ref(false)
-
 function updateIsMobile() {
   isMobile.value = window.matchMedia("(max-width: 720px)").matches
 }
 
-const speechReady = ref(false)
+/* =========================
+   iPhone/Safari SpeechSynthesis 安定化
+   - voicesの遅延ロード待ち
+   - 初回の先頭欠け対策（1回だけプレフィックス）
+   - voice を明示指定
+   ========================= */
+function waitVoicesReady(): Promise<void> {
+  return new Promise(resolve => {
+    const synth = window.speechSynthesis
+    const voices = synth.getVoices()
+    if (voices && voices.length > 0) return resolve()
+
+    const onVoices = () => {
+      synth.removeEventListener("voiceschanged", onVoices)
+      resolve()
+    }
+    synth.addEventListener("voiceschanged", onVoices)
+
+    // 保険：voiceschangedが来ない端末でも先に進める
+    setTimeout(() => {
+      synth.removeEventListener("voiceschanged", onVoices)
+      resolve()
+    }, 1200)
+  })
+}
+
+function pickEnglishVoice() {
+  const voices = window.speechSynthesis.getVoices()
+  return (
+    voices.find(v => v.lang === "en-US") ||
+    voices.find(v => v.lang?.startsWith("en")) ||
+    null
+  )
+}
+
+// 「最初の1回だけ先頭が欠ける」対策用フラグ
+const firstSpeakDone = ref(false)
+
+// ユーザー操作で一度でも触れたか（iOSの制限対策）
+const speechUnlocked = ref(false)
+
 function unlockSpeechOnce() {
-  if (speechReady.value) return
-  speechReady.value = true
+  if (speechUnlocked.value) return
+  speechUnlocked.value = true
+  // ※ここでは「音を鳴らす」必要はない。フラグだけでOK。
+  // iOSはユーザー操作があった事実が重要で、実際の発音はspeak側で行う。
+}
+
+async function speak(wordId: string) {
+  const w = roundWords.value.find(x => x.id === wordId)
+  if (!w) return
+
   try {
-    window.speechSynthesis.cancel()
-    const u = new SpeechSynthesisUtterance(" ")
+    const synth = window.speechSynthesis
+    await waitVoicesReady()
+
+    // 連続再生時の詰まり回避
+    if (synth.speaking || synth.pending) synth.cancel()
+
+    // iOS対策：cancel直後に少し待つ（最初の1回だけ欠けやすい）
+    await new Promise(r => setTimeout(r, 120))
+
+    // ★最初の1回だけ「, 」を付けて先頭欠けを防ぐ
+    const text = firstSpeakDone.value ? w.en : `, ${w.en}`
+
+    const u = new SpeechSynthesisUtterance(text)
     u.lang = "en-US"
-    u.volume = 0
     u.rate = 1.0
-    window.speechSynthesis.speak(u)
+    u.pitch = 1.0
+    u.volume = 1.0
+
+    const v = pickEnglishVoice()
+    if (v) u.voice = v
+
+    synth.speak(u)
+
+    firstSpeakDone.value = true
   } catch {
+    // 端末差で失敗しても落とさない
   }
 }
 
-onMounted(() => {
+onMounted(async () => {
   updateIsMobile()
   window.addEventListener("resize", updateIsMobile)
+
+  // 初回からvoicesを温める（iPhone対策）
+  await waitVoicesReady()
 })
 
 onBeforeUnmount(() => {
@@ -134,7 +203,7 @@ function getJaText(wordId: string) {
 }
 
 async function onPick(card: Card) {
-  // SPは最初のタップでSpeechをアンロックしておく（端末差対策）
+  // SPは最初のタップで「ユーザー操作があった」ことを確定させる（iOS対策）
   if (isMobile.value) unlockSpeechOnce()
 
   if (state.locked) return
@@ -164,7 +233,10 @@ async function onPick(card: Card) {
     matchedRound.add(a.wordId)
 
     // ★SPではマッチした瞬間に自動で発音（英語）
-    if (isMobile.value) speak(a.wordId)
+    if (isMobile.value) {
+      // iOS: 「ユーザー操作」から近いタイミングの方が通りやすい
+      speak(a.wordId)
+    }
 
     selected.value = null
     state.locked = false
@@ -176,22 +248,6 @@ async function onPick(card: Card) {
   wrongPair.value = null
   selected.value = null
   state.locked = false
-}
-
-function speak(wordId: string) {
-  const w = roundWords.value.find(x => x.id === wordId)
-  if (!w) return
-
-  try {
-    window.speechSynthesis.cancel()
-    const u = new SpeechSynthesisUtterance(w.en)
-    u.lang = "en-US"
-    u.rate = 1.0
-    u.pitch = 1.0
-    u.volume = 1.0
-    window.speechSynthesis.speak(u)
-  } catch {
-  }
 }
 </script>
 
@@ -225,6 +281,7 @@ function speak(wordId: string) {
         >
           <span class="cardText">{{ c.text }}</span>
 
+          <!-- PCでは残す / SPではCSSで非表示（display:none） -->
           <button class="audio" @click.stop="speak(c.wordId)" aria-label="Play audio">
             <Volume2 :size="18" />
           </button>
