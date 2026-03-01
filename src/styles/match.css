@@ -1,0 +1,337 @@
+:root {
+  --primary: #2fb7b1;
+  --primary-soft: rgba(47, 183, 177, 0.12);
+
+  --bg0: #f6f8f8;
+  --bg1: #eef2f2;
+
+  --surface: #ffffff;
+
+  --text: #1f2937;
+  --muted: #6b7280;
+
+  /* neutral borders */
+  --border-soft: rgba(0, 0, 0, 0.08);
+  --border: rgba(0, 0, 0, 0.12);
+
+  --shadow-soft: 0 1px 2px rgba(0, 0, 0, 0.04),
+    0 6px 18px rgba(0, 0, 0, 0.05);
+
+  --shadow-hover: 0 2px 6px rgba(0, 0, 0, 0.06),
+    0 10px 24px rgba(0, 0, 0, 0.06);
+
+  /* appbar color (your screenshot-like blue) */
+  --appbar: #4f63b5;
+}
+
+/* ===== Page base ===== */
+html,
+body {
+  min-height: 100%;
+}
+
+body {
+  margin: 0;
+  color: var(--text);
+  background: linear-gradient(180deg, var(--bg0), var(--bg1));
+  font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, sans-serif;
+}
+
+.appbar {
+  width: 100%;
+  background: var(--appbar);
+  color: white;
+
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
+
+  position: sticky;
+  top: 0;
+  z-index: 1000;
+}
+
+.appbarInner {
+  max-width: 980px;
+  margin: 0 auto;
+  padding: 16px 24px;
+  min-height: 64px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+/* Title */
+.appbar h1 {
+  font-size: 18px;
+  margin: 0;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+}
+
+/* Subtitle */
+.appbar .sub {
+  color: rgba(255, 255, 255, 0.85);
+  font-size: 13px;
+  margin: 4px 0 0;
+  letter-spacing: 0.02em;
+}
+
+/* ===== Layout container ===== */
+.wrap {
+  max-width: 980px;
+  margin: 0 auto;
+  padding: 24px;
+}
+
+/* ===============================
+   Board
+   =============================== */
+.board {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 18px;
+  margin-top: 22px;
+}
+
+.col h3 {
+  font-size: 14px;
+  color: var(--muted);
+}
+
+/* ===============================
+   Card
+   =============================== */
+.card {
+  width: 100%;
+  min-height: 64px;
+
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 14px;
+  margin-bottom: 12px;
+  border-radius: 14px;
+  background: var(--surface);
+  border: 1px solid var(--border-soft);
+  box-shadow: var(--shadow-soft);
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.card:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-hover);
+}
+
+/* selected */
+.card.selected {
+  border-color: var(--primary);
+  background: rgba(47, 183, 177, 0.08);
+}
+
+/* matched */
+.card.matched {
+  background: var(--primary-soft);
+  border: 1px solid var(--primary);
+  box-shadow: 0 4px 14px rgba(47, 183, 177, 0.18);
+}
+
+/* wrong */
+.card.wrong {
+  background: rgba(255, 0, 0, 0.06);
+  border: 2px solid rgba(255, 0, 0, 0.25);
+}
+
+/* text */
+.cardText {
+  font-size: 15px;
+  letter-spacing: 0.02em;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* ===============================
+   Audio Button
+   =============================== */
+.audio {
+  width: 34px;
+  height: 34px;
+
+  border-radius: 10px;
+  border: 1px solid var(--border-soft);
+  background: white;
+
+  cursor: pointer;
+}
+
+.audio:hover {
+  background: #f4f6f6;
+}
+
+/* ===============================
+   Next Button
+   =============================== */
+.actions {
+  margin-top: 28px;
+  display: flex;
+  justify-content: center;
+}
+
+.actions .btn {
+  min-width: 240px;
+  padding: 15px 26px;
+
+  border-radius: 14px;
+  border: 1px solid var(--border-soft);
+
+  background: var(--surface);
+  color: var(--text);
+
+  font-weight: 600;
+  letter-spacing: 0.05em;
+
+  box-shadow: var(--shadow-soft);
+
+  cursor: pointer;
+
+  transition: transform 0.12s ease, box-shadow 0.12s ease, border-color 0.12s ease,
+    opacity 0.12s ease;
+}
+
+.actions .btn:hover {
+  transform: translateY(-1px);
+  box-shadow: var(--shadow-hover);
+  border-color: rgba(0, 0, 0, 0.18);
+}
+
+.actions .btn:active {
+  transform: scale(0.98);
+  box-shadow: var(--shadow-soft);
+}
+
+.actions .btn:disabled {
+  background: #f3f4f6;
+  color: #9ca3af;
+  border-color: rgba(0, 0, 0, 0.08);
+  box-shadow: none;
+  cursor: not-allowed;
+  opacity: 0.8;
+}
+/* ===============================
+   SP (Smartphone) styles
+   =============================== */
+
+@media (max-width: 720px) {
+  /* ===== base spacing ===== */
+  body {
+    overflow-x: hidden;
+  }
+
+  .wrap {
+    padding: 12px;
+  }
+
+  /* ===== appbar ===== */
+  .appbarInner {
+    padding: 10px 12px;
+    min-height: 56px; 
+  }
+
+  .appbar h1 {
+    font-size: 16px;
+    line-height: 1.2;
+  }
+
+  .appbar .sub {
+    font-size: 12px;
+    margin-top: 3px;
+  }
+
+  /* ===== board layout ===== */
+  .board {
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    gap: 10px;
+    margin-top: 12px;
+  }
+
+  .col h3 {
+    font-size: 11px;
+    margin: 6px 0 8px;
+  }
+
+  /* ===== cards ===== */
+  .card {
+    min-height: 46px;
+    height: 46px;              
+    padding: 10px 10px;
+    margin-bottom: 8px;
+    border-radius: 12px;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .card:hover {
+    transform: none;
+    box-shadow: var(--shadow-soft);
+  }
+
+  .cardText {
+  font-size: clamp(11px, 3.2vw, 13px);
+  line-height: 1.2;
+
+  overflow: hidden;
+  text-overflow: ellipsis;
+
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+
+  white-space: normal;
+  }
+
+  /* selected / matched / wrong */
+  .card.selected {
+    background: rgba(47, 183, 177, 0.07);
+  }
+
+  .card.matched {
+    box-shadow: 0 3px 12px rgba(47, 183, 177, 0.16);
+  }
+
+  .card.wrong {
+    border-width: 2px;
+  }
+
+  /* ===== audio button ===== */
+.audio {
+  width: 26px;
+  height: 26px;
+  border-radius: 7px;
+  flex: 0 0 auto;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+  /* ===== next button area ===== */
+  .actions {
+    position: sticky;
+    bottom: 10px;
+    z-index: 20;
+    margin-top: 14px;
+    padding: 8px 0;
+    backdrop-filter: blur(6px);
+  }
+
+  .actions .btn {
+    width: 100%;
+    max-width: none;
+    padding: 14px 18px;
+    border-radius: 14px;
+    font-size: 15px;
+  }
+
+  .actions {
+    padding-bottom: calc(8px + env(safe-area-inset-bottom));
+  }
+}
