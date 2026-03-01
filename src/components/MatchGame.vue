@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, reactive, ref } from "vue"
+import { computed, reactive, ref, onMounted, onBeforeUnmount } from "vue"
 import { words, type Word } from "@/data/words"
 import "@/styles/match.css"
 import { Volume2 } from "lucide-vue-next"
@@ -45,6 +45,42 @@ const matchedRound = reactive(new Set<string>()) // wordId
 const round = ref(1)
 const roundWords = ref<Word[]>([])
 
+/* =========================
+   SP判定 & Speech unlock
+   ========================= */
+const isMobile = ref(false)
+
+function updateIsMobile() {
+  isMobile.value = window.matchMedia("(max-width: 720px)").matches
+}
+
+const speechReady = ref(false)
+function unlockSpeechOnce() {
+  if (speechReady.value) return
+  speechReady.value = true
+  try {
+    window.speechSynthesis.cancel()
+    const u = new SpeechSynthesisUtterance(" ")
+    u.lang = "en-US"
+    u.volume = 0
+    u.rate = 1.0
+    window.speechSynthesis.speak(u)
+  } catch {
+  }
+}
+
+onMounted(() => {
+  updateIsMobile()
+  window.addEventListener("resize", updateIsMobile)
+})
+
+onBeforeUnmount(() => {
+  window.removeEventListener("resize", updateIsMobile)
+})
+
+/* =========================
+   Round handling
+   ========================= */
 function pickRoundWords() {
   roundWords.value = shuffle(words).slice(0, Math.min(ROUND_SIZE, words.length))
 }
@@ -84,7 +120,23 @@ function isWrong(card: Card) {
   return wrongPair.value.a === card.key || wrongPair.value.b === card.key
 }
 
+/* =========================
+   SP用：日本語表示を1つにする
+   ========================= */
+function getJaText(wordId: string) {
+  const w = roundWords.value.find(x => x.id === wordId)
+  if (!w) return ""
+
+  if (isMobile.value) {
+    return w.ja.split(" / ")[0]
+  }
+  return w.ja
+}
+
 async function onPick(card: Card) {
+  // SPは最初のタップでSpeechをアンロックしておく（端末差対策）
+  if (isMobile.value) unlockSpeechOnce()
+
   if (state.locked) return
   if (isMatched(card)) return
 
@@ -110,6 +162,10 @@ async function onPick(card: Card) {
 
   if (a.wordId === b.wordId) {
     matchedRound.add(a.wordId)
+
+    // ★SPではマッチした瞬間に自動で発音（英語）
+    if (isMobile.value) speak(a.wordId)
+
     selected.value = null
     state.locked = false
     return
@@ -126,11 +182,16 @@ function speak(wordId: string) {
   const w = roundWords.value.find(x => x.id === wordId)
   if (!w) return
 
-  window.speechSynthesis.cancel()
-  const u = new SpeechSynthesisUtterance(w.en)
-  u.lang = "en-US"
-  u.rate = 1.0
-  window.speechSynthesis.speak(u)
+  try {
+    window.speechSynthesis.cancel()
+    const u = new SpeechSynthesisUtterance(w.en)
+    u.lang = "en-US"
+    u.rate = 1.0
+    u.pitch = 1.0
+    u.volume = 1.0
+    window.speechSynthesis.speak(u)
+  } catch {
+  }
 }
 </script>
 
@@ -145,6 +206,7 @@ function speak(wordId: string) {
       </div>
     </div>
   </header>
+
   <main class="wrap">
     <section class="board">
       <div class="col">
@@ -162,7 +224,8 @@ function speak(wordId: string) {
           @click="onPick(c)"
         >
           <span class="cardText">{{ c.text }}</span>
-          <button class="audio" @click.stop="speak(c.wordId)">
+
+          <button class="audio" @click.stop="speak(c.wordId)" aria-label="Play audio">
             <Volume2 :size="18" />
           </button>
         </button>
@@ -182,7 +245,7 @@ function speak(wordId: string) {
           }"
           @click="onPick(c)"
         >
-          {{ c.text }}
+          <span class="cardText">{{ getJaText(c.wordId) }}</span>
         </button>
       </div>
     </section>
