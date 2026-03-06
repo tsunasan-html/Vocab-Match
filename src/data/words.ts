@@ -47,7 +47,7 @@ const baseWords = [
   { en: "appliance", ja: "器具 / 装置" },
   { en: "acclaim", ja: "称賛する" },
   { en: "demand", ja: "需要 / 要求する" },
-  { en: "encourage", ja: "奨励する / 励ます" },
+  { en: "encourage", ja: "励ます" },
   { en: "frequently", ja: "頻繁に" },
   { en: "inspection", ja: "検査" },
   { en: "accommodate", ja: "収容する / 対応する" },
