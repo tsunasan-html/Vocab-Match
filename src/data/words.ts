@@ -15,7 +15,7 @@ const baseWords = [
   { en: "transfer", ja: "移す / 移動 / 転勤" },
   { en: "appear", ja: "現れる / のように見える" },
   { en: "browse", ja: "閲覧する / 見て回る" },
-  { en: "council", ja: "評議会 / 会議" },
+  { en: "council", ja: "議会 / 評議会" },
   { en: "deal", ja: "扱う / 分配する" },
   { en: "designate", ja: "指定する / 任命する" },
   { en: "duty", ja: "職務 / 義務" },
@@ -23,10 +23,10 @@ const baseWords = [
   { en: "eligible", ja: "資格がある" },
   { en: "environmentally", ja: "環境に関して" },
   { en: "essential", ja: "不可欠な" },
-  { en: "former", ja: "前の / 元の" },
+  { en: "former", ja: "以前の / かつての" },
   { en: "otherwise", ja: "別の方法で / さもなければ" },
   { en: "stationery", ja: "文房具" },
-  { en: "via", ja: "経由で" },
+  { en: "via", ja: "~を通って" },
   { en: "bureau", ja: "案内所 / 局" },
   { en: "assume", ja: "引き受ける / 仮定する" },
   { en: "behalf", ja: "代わりに" },
@@ -52,6 +52,10 @@ const baseWords = [
   { en: "inspection", ja: "検査" },
   { en: "accommodate", ja: "収容する / 対応する" },
   { en: "indicate", ja: "示す" },
+  { en: "modest", ja: "緩やかな / 控えめな" },
+  { en: "conduct", ja: "実施する / 案内する" },
+  { en: "remodel", ja: "~を改築する" },
+  { en: "reach", ja: "~に連絡する" },
 ]
 
 export const words: Word[] = baseWords.map((word, index) => ({
