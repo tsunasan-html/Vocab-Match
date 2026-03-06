@@ -210,7 +210,7 @@ body {
 }
 
 .actions .btn:disabled {
-  background: #f3f4f6;
+  background: #e0e2e5;
   color: #9ca3af;
   border-color: rgba(0, 0, 0, 0.08);
   box-shadow: none;
