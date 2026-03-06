@@ -56,6 +56,11 @@ const baseWords = [
   { en: "conduct", ja: "実施する / 案内する" },
   { en: "remodel", ja: "~を改築する" },
   { en: "reach", ja: "~に連絡する" },
+  { en: "regional", ja: "地域の" },
+  { en: "procedure", ja: "手順" },
+  { en: "participate", ja: "参加する" },
+  { en: "briefly", ja: "手短に" },
+  { en: "recognition", ja: "認めること" },
 ]
 
 export const words: Word[] = baseWords.map((word, index) => ({
