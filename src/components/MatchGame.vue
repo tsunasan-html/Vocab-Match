@@ -45,22 +45,11 @@ const matchedRound = reactive(new Set<string>()) // wordId
 const round = ref(1)
 const roundWords = ref<Word[]>([])
 
-/* =========================
-   SP判定
-   ========================= */
 const isMobile = ref(false)
 function updateIsMobile() {
   isMobile.value = window.matchMedia("(max-width: 720px)").matches
 }
 
-/* =========================
-   SpeechSynthesis (iOS Safari 安定化)
-   - voiceキャッシュ
-   - “ユーザー操作中に speak を一度通す” でアンロック
-   - speak内は await を極力減らして即時再生
-   - resume/cancel を毎回入れて詰まりを回避
-   - visibilitychange で復帰時の詰まり回避
-   ========================= */
 const preferredVoice = ref<SpeechSynthesisVoice | null>(null)
 
 function refreshVoiceCache() {
@@ -71,10 +60,8 @@ function refreshVoiceCache() {
     null
 }
 
-// 「最初の1回だけ先頭が欠ける」対策用フラグ
 const firstSpeakDone = ref(false)
 
-// ユーザー操作で一度でもアンロックしたか
 const speechUnlocked = ref(false)
 
 function unlockSpeechOnce() {
@@ -86,18 +73,16 @@ function unlockSpeechOnce() {
     synth.cancel()
     synth.resume()
 
-    // iOSは「ユーザー操作中に speak が一度通る」ことが重要
     const u = new SpeechSynthesisUtterance(" ")
     u.lang = "en-US"
     u.rate = 1.0
     u.pitch = 1.0
-    u.volume = 0 // ほぼ無音（端末差で無音が効かない場合もあるが害は少ない）
+    u.volume = 0
 
     if (preferredVoice.value) u.voice = preferredVoice.value
 
     synth.speak(u)
   } catch {
-    // noop
   }
 }
 
@@ -108,11 +93,9 @@ function speak(wordId: string) {
   const synth = window.speechSynthesis
 
   try {
-    // iOS詰まり対策
     synth.cancel()
     synth.resume()
 
-    // ★最初の1回だけ「, 」を付けて先頭欠けを防ぐ
     const text = firstSpeakDone.value ? w.en : `, ${w.en}`
 
     const u = new SpeechSynthesisUtterance(text)
@@ -126,7 +109,6 @@ function speak(wordId: string) {
     synth.speak(u)
     firstSpeakDone.value = true
   } catch {
-    // 端末差で失敗しても落とさない
   }
 }
 
@@ -136,7 +118,6 @@ function handleVisibility() {
     if (document.visibilityState === "hidden") synth.cancel()
     else synth.resume()
   } catch {
-    // noop
   }
 }
 
@@ -144,11 +125,9 @@ onMounted(() => {
   updateIsMobile()
   window.addEventListener("resize", updateIsMobile)
 
-  // voiceキャッシュ（遅延ロード対策で両方）
   refreshVoiceCache()
   window.speechSynthesis.addEventListener("voiceschanged", refreshVoiceCache)
 
-  // 復帰時詰まり対策
   document.addEventListener("visibilitychange", handleVisibility)
 })
 
@@ -158,9 +137,6 @@ onBeforeUnmount(() => {
   document.removeEventListener("visibilitychange", handleVisibility)
 })
 
-/* =========================
-   Round handling
-   ========================= */
 function pickRoundWords() {
   roundWords.value = shuffle(words).slice(0, Math.min(ROUND_SIZE, words.length))
 }
@@ -200,9 +176,6 @@ function isWrong(card: Card) {
   return wrongPair.value.a === card.key || wrongPair.value.b === card.key
 }
 
-/* =========================
-   SP用：日本語表示を1つにする
-   ========================= */
 function getJaText(wordId: string) {
   const w = roundWords.value.find(x => x.id === wordId)
   if (!w) return ""
@@ -214,7 +187,6 @@ function getJaText(wordId: string) {
 }
 
 async function onPick(card: Card) {
-  // ★重要：iOSは「ユーザー操作中に speak を通す」ほど安定する
   if (isMobile.value) unlockSpeechOnce()
 
   if (state.locked) return
@@ -243,8 +215,6 @@ async function onPick(card: Card) {
   if (a.wordId === b.wordId) {
     matchedRound.add(a.wordId)
 
-    // ★SPではマッチした瞬間に自動で発音（英語）
-    // iOSは await を挟むと失敗しやすいので “即 speak”
     if (isMobile.value) {
       speak(a.wordId)
     }
@@ -292,7 +262,6 @@ async function onPick(card: Card) {
         >
           <span class="cardText">{{ c.text }}</span>
 
-          <!-- PCでは残す / SPではCSSで非表示（display:none） -->
           <button class="audio" @click.stop="speak(c.wordId)" aria-label="Play audio">
             <Volume2 :size="18" />
           </button>
