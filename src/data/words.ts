@@ -66,6 +66,18 @@ const baseWords = [
   { en: "approximately", ja: "およそ" },
   { en: "currently", ja: "現在のところ" },
   { en: "bulletin", ja: "掲示" },
+  { en: "consider", ja: "~を考慮する" },
+  { en: "blame", ja: "非難する" },
+  { en: "occur", ja: "起きる" },
+  { en: "accurate", ja: "正確な" },
+  { en: "suppose", ja: "~だと仮定する" },
+  { en: "obtain", ja: "~を得る" },
+  { en: "immediately", ja: "すぐに" },
+  { en: "furthermore", ja: "そのうえ" },
+  { en: "fuel", ja: "燃料" },
+  { en: "warranty", ja: "保証書" },
+  { en: "attach", ja: "~を添付する" },
+  { en: "arrange", ja: "~を手配する" },
 ]
 
 export const words: Word[] = baseWords.map((word, index) => ({
