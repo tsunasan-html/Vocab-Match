@@ -61,6 +61,11 @@ const baseWords = [
   { en: "participate", ja: "参加する" },
   { en: "briefly", ja: "手短に" },
   { en: "recognition", ja: "認めること" },
+  { en: "revise", ja: "~改訂する" },
+  { en: "upcoming", ja: "次回の" },
+  { en: "approximately", ja: "およそ" },
+  { en: "currently", ja: "現在のところ" },
+  { en: "bulletin", ja: "掲示" },
 ]
 
 export const words: Word[] = baseWords.map((word, index) => ({
