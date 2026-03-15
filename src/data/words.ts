@@ -21,7 +21,7 @@ const baseWords = [
   { en: "duty", ja: "職務 / 義務" },
   { en: "durable", ja: "耐久性のある" },
   { en: "eligible", ja: "資格がある" },
-  { en: "environmentally", ja: "環境に関して" },
+  { en: "environmentally", ja: "環境的に / 環境面で" },
   { en: "essential", ja: "不可欠な" },
   { en: "former", ja: "以前の / かつての" },
   { en: "otherwise", ja: "別の方法で / さもなければ" },
@@ -45,6 +45,10 @@ const baseWords = [
   { en: "cupboard", ja: "食器棚 / 戸棚" },
   { en: "defective", ja: "欠陥のある" },
   { en: "appliance", ja: "器具 / 装置" },
+  { en: "appropriate", ja: "適切な / ふさわしい" },
+  { en: "worth", ja: "～の価値がある" },
+  { en: "innovative", ja: "画期的な / 革新的な" },
+  { en: "intend", ja: "意図する" },
   { en: "acclaim", ja: "称賛する" },
   { en: "demand", ja: "需要 / 要求する" },
   { en: "encourage", ja: "励ます" },
@@ -78,6 +82,8 @@ const baseWords = [
   { en: "warranty", ja: "保証書" },
   { en: "attach", ja: "~を添付する" },
   { en: "arrange", ja: "~を手配する" },
+  { en: "temporary", ja: "一時的な" },
+  { en: "remain", ja: "~のままである" },
 ]
 
 export const words: Word[] = baseWords.map((word, index) => ({
